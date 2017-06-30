@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Ripple Notification</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script type="text/javascript">
 			var btcxBidVal = 0;
 			var btcxAskVal = 0;
@@ -42,8 +43,13 @@
 			  xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/ripple/?convert=INR", true);
 			  xhttp.send();
 			}
+			function abcdef(){
+				$.ajax({url: "https://api.btcxindia.com/ticker/",headers: { 'Access-Control-Allow-Origin': 'https://jibinp99.github.io' }, success: function(result){
+					alert(result.bid);
+				}});
+			}
 			function getBtcxVal() {
-			  var xhttp = new XMLHttpRequest();
+			  var xhttp = new XMLHttpRequest({mozSystem: true});
 			  xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
 				  var obj = JSON.parse(this.responseText);alert(obj.bid);
@@ -104,6 +110,6 @@
         </script>
     </head>
     <body>
-        <!--<button onclick="getCoinMarketVal();">Trigger Notification</button>-->
+        <button onclick="abcdef();">Trigger Notification</button>
     </body>
 </html>
