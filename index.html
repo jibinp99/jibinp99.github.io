@@ -1,20 +1,17 @@
-<!doctype html>
-<html>
-    <head>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		 
+		<meta name="description" content="">
+		<meta name="author" content="Jibin P">
         <title>Ripple Notification</title>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script type="text/javascript">
-			var btcxBidVal = 0;
-			var btcxAskVal = 0;
 			var coinMarketVal = 0;
-			var btcxBidValNew = 0;
-			var btcxAskValNew = 0;
-			var coinMarketValNew = 0;
-			var percentage1 = 0;
-			var percentage2 = 0;
-			var percentage3 = 0;
+			var percentage1 = 0
 			setInterval(function() {
-				getBtcxVal();
 				getCoinMarketVal();
 			}, 60 * 1000);
 			function getCoinMarketVal() {
@@ -25,7 +22,7 @@
 				  coinMarketValNew = obj[0].price_inr;
 				  if(coinMarketVal ==0){
 					coinMarketVal = coinMarketValNew;
-					trigger_notification();
+					trigger_notification(obj);
 				  }else {
 				     percentage1 = 0;
 					if(coinMarketVal<coinMarketValNew){
@@ -33,9 +30,8 @@
 					} else if(coinMarketVal>coinMarketValNew){
 						percentage1 = ((coinMarketValNew - coinMarketVal)/coinMarketVal)*100;
 					}
-					coinMarketVal = coinMarketValNew;
 					if( percentage1 >=1 || percentage1 <= -1){
-						trigger_notification();
+						trigger_notification(obj);
 					}
 				  }
 				}
@@ -43,61 +39,22 @@
 			  xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/ripple/?convert=INR", true);
 			  xhttp.send();
 			}
-			function abcdef(){
-				$.ajax({url: "https://api.btcxindia.com/ticker/",headers: { 'Access-Control-Allow-Origin': 'https://jibinp99.github.io' }, success: function(result){
-					alert(result.bid);
-				}});
-			}
-			function getBtcxVal() {
-			  var xhttp = new XMLHttpRequest({mozSystem: true});
-			  xhttp.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-				  var obj = JSON.parse(this.responseText);alert(obj.bid);
-				  btcxBidValNew = obj.bid;
-				  btcxAskValNew = obj.ask;
-				  if(btcxBidVal ==0){
-					btcxBidVal = btcxBidValNew;
-					btcxAskVal = btcxAskValNew;
-					trigger_notification();
-				  }else {
-				     percentage2 = 0;
-					 percentage3 = 0;
-					if(btcxBidVal<btcxBidValNew){
-						percentage2 = ((btcxBidValNew - btcxBidVal)/btcxBidVal)*100;
-					} else if(btcxBidVal>btcxBidValNew){
-						percentage2 = ((btcxBidValNew - btcxBidVal)/btcxBidVal)*100;
-					}
-					btcxBidVal = btcxBidValNew;
-					if(btcxAskVal<btcxAskValNew){
-						percentage3 = ((btcxAskValNew - btcxAskVal)/btcxAskVal)*100;
-					} else if(btcxAskVal>btcxAskValNew){
-						percentage3 = ((btcxAskValNew - btcxAskVal)/btcxAskVal)*100;
-					}
-					btcxAskVal = btcxAskValNew;
-					if(percentage1 >=1 || percentage1 <= -1 || percentage2 >=1 || percentage2 <= -1 || percentage3 >=1 || percentage3 <= -1){
-						trigger_notification();
-					}
-				  }
-				}
-			  };
-			  xhttp.open("GET", "https://api.btcxindia.com/ticker/", true);
-			  xhttp.send();
-			}
-            function trigger_notification()
+			
+            function trigger_notification(obj)
             {
                 //check if browser supports notification API
                 if("Notification" in window)
                 {
                     if(Notification.permission == "granted")
                     {
-                        var notification = new Notification("Ripple Rate Alert", {"body":"Global(Rs "+coinMarketVal+") :: Btcx(Bid:Rs "+btcxBidVal+",Ask:Rs "+btcxAskVal+")", "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
+                        var notification = new Notification("Ripple Rate Alert", {"body":"Starting : Rs "+coinMarketVal+"\nCurrent : Rs "+coinMarketValNew+"\n%Change 1h : "+obj[0].percent_change_1h+"\n%Change 24h : "+obj[0].percent_change_24h, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
                     }
                     else
                     {
                         Notification.requestPermission(function (permission) {
                             if (permission === "granted")
                             {
-                                var notification = new Notification("Ripple Rate Alert", {"body":"Global(Rs "+coinMarketVal+") :: Btcx(Bid:Rs "+btcxBidVal+",Ask:Rs "+btcxAskVal+")", "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
+                                var notification = new Notification("Ripple Rate Alert", {"body":"Starting : Rs "+coinMarketVal+"\nCurrent : Rs "+coinMarketValNew+"\n%Change 1h : "+obj[0].percent_change_1h+"\n%Change 24h : "+obj[0].percent_change_24h, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
                             }
                         });
                     }
@@ -110,6 +67,6 @@
         </script>
     </head>
     <body>
-        <button onclick="abcdef();">Trigger Notification</button>
+        <button onclick="getCoinMarketVal();">Get Notification</button>
     </body>
 </html>
