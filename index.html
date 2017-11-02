@@ -7,54 +7,62 @@
 		 
 		<meta name="description" content="">
 		<meta name="author" content="Jibin P">
-        <title>Ripple Notification</title>
+        <title>Bitcoin Notification</title>
         <script type="text/javascript">
 			var coinMarketVal = 0;
-			var percentage1 = 0
+			var koinexVal = 0;
+			var coinMarketValNew = 0;
+			var koinexValNew = 0;
 			setInterval(function() {
 				getCoinMarketVal();
+				getKoinexVal();
+				diff1 = coinMarketValNew - coinMarketVal;
+				diff2 = koinexValNew - koinexVal;
+				if(diff1 > 1000 || diff1 < -1000 || diff2 > 1000 || diff2 < -1000 ){
+					coinMarketVal = coinMarketValNew;
+					koinexVal = koinexValNew;
+					trigger_notification("CoinMarketCap: "+coinMarketValNew+" ( "+diff1+" )\n Koinex: "+koinexValNew+" ( "+diff2+" )");
+				}
 			}, 60 * 1000);
 			function getCoinMarketVal() {
 			  var xhttp = new XMLHttpRequest();
 			  xhttp.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
 				  var obj = JSON.parse(this.responseText);
-				  coinMarketValNew = obj[0].price_inr;
-				  if(coinMarketVal ==0){
-					coinMarketVal = coinMarketValNew;
-					trigger_notification(obj);
-				  }else {
-				     percentage1 = 0;
-					if(coinMarketVal<coinMarketValNew){
-						percentage1 = ((coinMarketValNew - coinMarketVal)/coinMarketVal)*100;
-					} else if(coinMarketVal>coinMarketValNew){
-						percentage1 = ((coinMarketValNew - coinMarketVal)/coinMarketVal)*100;
-					}
-					if( percentage1 >=1 || percentage1 <= -1){
-						trigger_notification(obj);
-					}
-				  }
+				  coinMarketValNew = parseInt(obj[0].price_inr);
 				}
 			  };
-			  xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/ripple/?convert=INR", true);
+			  xhttp.open("GET", "https://api.coinmarketcap.com/v1/ticker/bitcoin/?convert=INR", true);
 			  xhttp.send();
 			}
 			
-            function trigger_notification(obj)
+			function getKoinexVal() {
+			  var xhttp = new XMLHttpRequest();
+			  xhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+				  var obj = JSON.parse(this.responseText);
+				  koinexValNew = parseInt(obj.prices.BTC);
+				}
+			  };
+			  xhttp.open("GET", "https://koinex.in/api/ticker", true);
+			  xhttp.send();
+			}
+			
+            function trigger_notification(msg)
             {
                 //check if browser supports notification API
                 if("Notification" in window)
                 {
                     if(Notification.permission == "granted")
                     {
-                        var notification = new Notification("Ripple Rate Alert", {"body":"Starting : Rs "+coinMarketVal+"\nCurrent : Rs "+coinMarketValNew+"\n%Change 1h : "+obj[0].percent_change_1h+"\n%Change 24h : "+obj[0].percent_change_24h, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
+                        var notification = new Notification("Bitcoin Rate Alert", {"body":msg, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
                     }
                     else
                     {
                         Notification.requestPermission(function (permission) {
                             if (permission === "granted")
                             {
-                                var notification = new Notification("Ripple Rate Alert", {"body":"Starting : Rs "+coinMarketVal+"\nCurrent : Rs "+coinMarketValNew+"\n%Change 1h : "+obj[0].percent_change_1h+"\n%Change 24h : "+obj[0].percent_change_24h, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
+                                var notification = new Notification("Bitcoin Rate Alert", {"body":msg, "icon":"http://qnimate.com/wp-content/uploads/2014/07/web-notification-api-300x150.jpg"});
                             }
                         });
                     }
@@ -67,6 +75,6 @@
         </script>
     </head>
     <body>
-        <button onclick="getCoinMarketVal();">Get Notification</button>
+        
     </body>
 </html>
